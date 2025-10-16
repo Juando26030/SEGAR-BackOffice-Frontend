@@ -1,0 +1,46 @@
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 via-white to-orange-50 py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full text-center">
+    <!-- Icon -->
+    <div class="flex justify-center mb-6">
+      <div class="bg-red-100 rounded-full p-6">
+        <svg class="w-20 h-20 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="bg-white rounded-2xl shadow-2xl p-8 border border-gray-200">
+      <h1 class="text-3xl font-bold text-gray-900 mb-4">Acceso No Autorizado</h1>
+      <p class="text-gray-600 mb-6">
+        No tienes permisos suficientes para acceder a esta sección del sistema.
+      </p>
+
+      <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+        <div class="flex items-start">
+          <svg class="w-5 h-5 text-red-600 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+          </svg>
+          <div class="text-left">
+            <p class="text-sm text-red-800 font-medium">Se requieren permisos de administrador</p>
+            <p class="text-xs text-red-700 mt-1">Contacta al administrador del sistema si crees que esto es un error</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-col space-y-3">
+        <button (click)="goToLanding()" class="btn btn-primary w-full">
+          Volver al Inicio
+        </button>
+        <a routerLink="/login" class="btn btn-secondary w-full">
+          Intentar con Otra Cuenta
+        </a>
+      </div>
+    </div>
+
+    <!-- Help Text -->
+    <div class="mt-6 text-sm text-gray-600">
+      <p>¿Necesitas ayuda? Contacta a <a href="mailto:soporte&#64;segar.com" class="text-primary-600 hover:text-primary-700 font-medium">soporte&#64;segar.com</a></p>
+    </div>
+  </div>
+</div>
