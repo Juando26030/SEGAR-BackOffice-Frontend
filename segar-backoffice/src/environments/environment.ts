@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8090', // Mismo backend que el frontend
+  apiUrl: 'http://localhost:8090',
   keycloak: {
     url: 'http://localhost:8080',
     realm: 'segar',
