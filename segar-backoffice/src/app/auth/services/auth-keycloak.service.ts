@@ -19,6 +19,12 @@ export class AuthKeycloakService {
    */
   async getUserProfile() {
     try {
+      // Primero verificar si está logueado
+      if (!this.keycloakService.isLoggedIn()) {
+        console.log('Usuario no está logueado');
+        return null;
+      }
+
       return await this.keycloakService.loadUserProfile();
     } catch (error) {
       console.error('Error al cargar perfil:', error);
@@ -45,7 +51,10 @@ export class AuthKeycloakService {
    */
   hasRole(role: UserRole): boolean {
     const roles = this.getUserRoles();
-    return roles.some(r => r.toUpperCase() === role);
+    console.log('🔍 Verificando rol:', role, 'en roles del usuario:', roles);
+    const hasIt = roles.some(r => r.toUpperCase() === role || r.toLowerCase() === role.toLowerCase());
+    console.log('   Resultado:', hasIt);
+    return hasIt;
   }
 
   /**
@@ -53,15 +62,24 @@ export class AuthKeycloakService {
    * Retorna el rol con mayor privilegio
    */
   getUserType(): UserRole | null {
-    if (this.hasRole('SUPER_ADMIN')) {
+    console.log('🔍 Obteniendo tipo de usuario...');
+    console.log('   Roles disponibles:', this.getUserRoles());
+
+    // Verificar super-admin (puede venir como 'super-admin' o 'SUPER_ADMIN')
+    if (this.hasRole('SUPER_ADMIN') || this.getUserRoles().some(r => r.toLowerCase() === 'super-admin')) {
+      console.log('✅ Usuario identificado como SUPER_ADMIN');
       return 'SUPER_ADMIN';
     }
     if (this.hasRole('ADMIN')) {
+      console.log('✅ Usuario identificado como ADMIN');
       return 'ADMIN';
     }
     if (this.hasRole('EMPLEADO')) {
+      console.log('✅ Usuario identificado como EMPLEADO');
       return 'EMPLEADO';
     }
+
+    console.warn('⚠️ Usuario sin rol válido');
     return null;
   }
 
@@ -72,27 +90,30 @@ export class AuthKeycloakService {
    */
   async redirectByRole(): Promise<void> {
     if (!this.isLoggedIn()) {
-      console.warn('Usuario no autenticado');
+      console.warn('⚠️ Usuario no autenticado');
       return;
     }
 
     const userType = this.getUserType();
-    console.log('Tipo de usuario detectado:', userType);
+    console.log('🔍 Tipo de usuario detectado:', userType);
 
     switch (userType) {
       case 'SUPER_ADMIN':
-        // Redirigir al panel de administración SaaS (backoffice)
-        window.location.href = '/admin/dashboard';
+        // Redirigir al panel de bienvenida del super admin
+        console.log('✅ Redirigiendo super-admin a /admin/welcome');
+        // Usar router.navigate en lugar de window.location para mantener estado
+        await this.router.navigate(['/admin/welcome'], { replaceUrl: true });
         break;
 
       case 'ADMIN':
       case 'EMPLEADO':
         // Redirigir al frontend SEGAR
+        console.log('✅ Redirigiendo admin/empleado al frontend SEGAR');
         window.location.href = 'http://localhost:4200';
         break;
 
       default:
-        console.error('Usuario sin rol válido');
+        console.error('❌ Usuario sin rol válido:', userType);
         await this.router.navigate(['/unauthorized']);
     }
   }
@@ -107,10 +128,15 @@ export class AuthKeycloakService {
   }
 
   /**
-   * Cierra la sesión
+   * Cierra la sesión completamente
+   * Redirige directamente al login del frontend
    */
   async logout(): Promise<void> {
-    await this.keycloakService.logout(window.location.origin);
+    console.log('🚪 Cerrando sesión...');
+
+    // Simplemente redirigir al login del frontend
+    // El login del frontend se encargará de cerrar la sesión de Keycloak
+    window.location.href = 'http://localhost:4200/auth/login';
   }
 
   /**

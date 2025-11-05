@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthKeycloakService } from '../../../auth/services/auth-keycloak.service';
+import { NavigationGuardService } from '../../../core/services/navigation-guard.service';
 
 @Component({
   selector: 'app-super-admin-welcome',
@@ -109,23 +110,88 @@ export class SuperAdminWelcomeComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private authService: AuthKeycloakService
+    private authService: AuthKeycloakService,
+    private navigationGuard: NavigationGuardService
   ) {}
 
   async ngOnInit() {
-    // No necesitamos verificar rol aquí porque el login ya lo hizo
-    // Si el usuario llegó a esta página, ya es SUPER_ADMIN
+    console.log('🔍 SuperAdminWelcomeComponent iniciando...');
+
+    // Esperar a que Keycloak se inicialice completamente
+    await this.waitForKeycloakInit();
+
+    // Verificar autenticación
+    const isAuthenticated = this.authService.isLoggedIn();
+    console.log('🔍 Estado de autenticación:', isAuthenticated);
+
+    if (!isAuthenticated) {
+      console.warn('⚠️ Usuario no autenticado después de espera, redirigiendo al login');
+      window.location.href = '/';
+      return;
+    }
+
+    // Verificar que sea super-admin
+    const userType = this.authService.getUserType();
+    console.log('🔍 Tipo de usuario:', userType);
+
+    if (userType !== 'SUPER_ADMIN') {
+      console.warn('⚠️ Usuario no es super-admin, redirigiendo');
+      this.router.navigate(['/unauthorized']);
+      return;
+    }
+
+    // Prevenir navegación hacia atrás después de logout
+    this.navigationGuard.preventBackNavigation();
+
     console.log('✅ Super Admin accediendo a página de bienvenida');
+    console.log('👤 Roles del usuario:', this.authService.getUserRoles());
 
     // Cargar información del usuario
     await this.loadUserInfo();
   }
 
+  /**
+   * Espera a que Keycloak se inicialice completamente
+   * Intenta varias veces con un pequeño delay
+   */
+  private async waitForKeycloakInit(): Promise<void> {
+    console.log('⏳ Esperando inicialización de Keycloak...');
+
+    for (let i = 0; i < 10; i++) {
+      if (this.authService.isLoggedIn()) {
+        console.log('✅ Keycloak inicializado correctamente');
+        return;
+      }
+
+      console.log(`   Intento ${i + 1}/10...`);
+      await new Promise(resolve => setTimeout(resolve, 200));
+    }
+
+    console.warn('⚠️ Keycloak no se inicializó en el tiempo esperado');
+  }
+
   async loadUserInfo() {
-    const userProfile = await this.authService.getUserProfile();
-    if (userProfile) {
-      this.userName = `${userProfile.firstName || ''} ${userProfile.lastName || ''}`.trim() || 'Super Admin';
-      this.userEmail = userProfile.email || '';
+    try {
+      const userProfile = await this.authService.getUserProfile();
+      if (userProfile) {
+        this.userName = `${userProfile.firstName || ''} ${userProfile.lastName || ''}`.trim() || 'Super Admin';
+        this.userEmail = userProfile.email || '';
+        console.log('✅ Información de usuario cargada:', { userName: this.userName, userEmail: this.userEmail });
+      } else {
+        // Fallback a información del token
+        const userInfo = this.authService.getUserInfo();
+        if (userInfo) {
+          this.userName = userInfo.preferred_username || userInfo.name || 'Super Admin';
+          this.userEmail = userInfo.email || '';
+        }
+      }
+    } catch (error) {
+      console.warn('⚠️ No se pudo cargar perfil completo, usando datos del token');
+      const userInfo = this.authService.getUserInfo();
+      if (userInfo) {
+        this.userName = userInfo.preferred_username || userInfo.name || 'Super Admin';
+        this.userEmail = userInfo.email || '';
+      }
     }
   }
 

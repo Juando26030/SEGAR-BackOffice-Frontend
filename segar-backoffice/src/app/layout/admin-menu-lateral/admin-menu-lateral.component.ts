@@ -24,11 +24,25 @@ export class AdminMenuLateralComponent implements OnInit {
   }
 
   private async loadUserProfile() {
-    const userProfile = await this.authService.getUserProfile();
-    if (userProfile) {
-      this.userProfile.name = `${userProfile.firstName || ''} ${userProfile.lastName || ''}`.trim() || userProfile.username || 'Super Admin';
+    try {
+      const userProfile = await this.authService.getUserProfile();
+      if (userProfile) {
+        this.userProfile.name = `${userProfile.firstName || ''} ${userProfile.lastName || ''}`.trim() || userProfile.username || 'Super Admin';
+        this.userProfile.role = 'Super Administrador';
+        this.userProfile.initials = this.getInitials(this.userProfile.name);
+      } else {
+        // Si no se pudo cargar el perfil, usar valores por defecto
+        console.log('No se pudo cargar perfil, usando valores por defecto');
+        this.userProfile.name = 'Super Admin';
+        this.userProfile.role = 'Super Administrador';
+        this.userProfile.initials = 'SA';
+      }
+    } catch (error) {
+      console.error('Error cargando perfil de usuario:', error);
+      // Usar valores por defecto en caso de error
+      this.userProfile.name = 'Super Admin';
       this.userProfile.role = 'Super Administrador';
-      this.userProfile.initials = this.getInitials(this.userProfile.name);
+      this.userProfile.initials = 'SA';
     }
   }
 

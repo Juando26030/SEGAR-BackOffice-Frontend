@@ -86,11 +86,21 @@ export class AuthService {
   hasRole(role: string): boolean {
     if (!this.keycloak?.tokenParsed) return false;
     const roles = this.keycloak.tokenParsed['realm_access']?.['roles'] || [];
+    console.log('🔍 Verificando rol:', role, 'en roles:', roles);
     return roles.includes(role);
   }
 
   isAdmin(): boolean {
-    return this.hasRole('admin') || this.hasRole('backoffice-admin');
+    return this.hasRole('admin') || this.hasRole('backoffice-admin') || this.hasRole('super-admin');
+  }
+
+  isSuperAdmin(): boolean {
+    return this.hasRole('super-admin');
+  }
+
+  getRoles(): string[] {
+    if (!this.keycloak?.tokenParsed) return [];
+    return this.keycloak.tokenParsed['realm_access']?.['roles'] || [];
   }
 
   async refreshToken(): Promise<boolean> {

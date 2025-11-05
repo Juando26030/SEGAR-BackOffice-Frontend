@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthKeycloakService } from '../../../auth/services/auth-keycloak.service';
+import { NavigationGuardService } from '../../../core/services/navigation-guard.service';
 
 interface DashboardStat {
   title: string;
@@ -90,14 +91,22 @@ export class AdminDashboardComponent implements OnInit {
 
   constructor(
     private authService: AuthKeycloakService,
-    private router: Router
+    private router: Router,
+    private navigationGuard: NavigationGuardService
   ) {}
 
   async ngOnInit() {
-    // No necesitamos verificar rol aquí porque el login ya lo hizo
-    console.log('✅ Super Admin accediendo al dashboard');
+    // Verificar autenticación
+    if (!this.authService.isLoggedIn()) {
+      console.warn('⚠️ Usuario no autenticado, redirigiendo al login');
+      window.location.href = 'http://localhost:4200/auth/login';
+      return;
+    }
 
-    // Cargar información del usuario
+    // Prevenir navegación hacia atrás después de logout
+    this.navigationGuard.preventBackNavigation();
+
+    console.log('✅ Super Admin accediendo al dashboard');
     this.loadUserInfo();
   }
 

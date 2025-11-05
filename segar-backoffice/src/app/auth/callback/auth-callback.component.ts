@@ -23,16 +23,34 @@ export class AuthCallbackComponent implements OnInit {
   async ngOnInit() {
     console.log('🔄 Procesando callback de autenticación...');
 
-    // Esperar un momento para que Keycloak procese el token
-    setTimeout(async () => {
+    // Esperar a que Keycloak procese el token completamente
+    await this.waitForAuthentication();
+  }
+
+  private async waitForAuthentication(): Promise<void> {
+    console.log('⏳ Esperando autenticación completa...');
+
+    // Intentar hasta 20 veces (4 segundos)
+    for (let i = 0; i < 20; i++) {
       if (this.authService.isLoggedIn()) {
         console.log('✅ Usuario autenticado exitosamente');
+        console.log('🔍 Roles del usuario:', this.authService.getUserRoles());
+
+        // Esperar un poco más para asegurar que el token está completamente cargado
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        // Redirigir según el rol
         await this.authService.redirectByRole();
-      } else {
-        console.error('❌ Error: Usuario no autenticado después del callback');
-        window.location.href = '/';
+        return;
       }
-    }, 1000);
+
+      console.log(`   Esperando autenticación... Intento ${i + 1}/20`);
+      await new Promise(resolve => setTimeout(resolve, 200));
+    }
+
+    console.error('❌ Error: Timeout esperando autenticación');
+    console.error('   Usuario no autenticado después del callback');
+    window.location.href = '/';
   }
 }
 
