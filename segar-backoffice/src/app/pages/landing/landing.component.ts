@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { AuthKeycloakService } from '../../auth/services/auth-keycloak.service';
 
 interface Feature {
   icon: string;
@@ -245,11 +246,27 @@ export class LandingComponent implements OnInit {
     }
   ];
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private authService: AuthKeycloakService
+  ) {}
 
   ngOnInit(): void {
+    // NO redirigir automáticamente - permitir ver la landing page
+    // El usuario decide cuándo hacer login con el botón
+
     // Animaciones al scroll
     this.setupScrollAnimations();
+  }
+
+  async navigateToLogin(): Promise<void> {
+    // Redirigir al login del frontend (compartido)
+    window.location.href = 'http://localhost:4200/auth/login';
+  }
+
+  async startFreeTrial(): Promise<void> {
+    // Redirigir al login del frontend para la prueba gratuita
+    window.location.href = 'http://localhost:4200/auth/login';
   }
 
   setupScrollAnimations(): void {
@@ -288,19 +305,12 @@ export class LandingComponent implements OnInit {
     }
   }
 
-  navigateToLogin(): void {
-    this.router.navigate(['/login']);
-  }
-
   toggleFaq(index: number): void {
     this.faqs[index].open = !this.faqs[index].open;
-  }
-
-  startFreeTrial(): void {
-    this.router.navigate(['/login']);
   }
 
   contactSales(): void {
     this.scrollToSection('contact');
   }
 }
+
