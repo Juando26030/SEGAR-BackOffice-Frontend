@@ -23,6 +23,8 @@ export class AdminDashboardComponent implements OnInit {
 
   userName: string = '';
   userEmail: string = '';
+  ultimaActualizacion: Date = new Date();
+  isRefreshing = false;
 
   stats: DashboardStat[] = [
     {
@@ -109,6 +111,14 @@ export class AdminDashboardComponent implements OnInit {
 
   async logout() {
     await this.authService.logout();
+  }
+
+  actualizarDatos() {
+    this.isRefreshing = true;
+    setTimeout(() => {
+      this.ultimaActualizacion = new Date();
+      this.isRefreshing = false;
+    }, 1000);
   }
 
   navigateToTenants() {

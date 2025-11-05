@@ -1,0 +1,48 @@
+/* Estilos para el menú lateral morado */
+.menu-item {
+  @apply relative flex items-center px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 overflow-hidden;
+  @apply text-white/80 hover:text-white hover:bg-white/10;
+}
+
+.menu-item-active {
+  @apply bg-gradient-to-r from-purple-600/30 to-purple-500/20 text-white;
+  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.2);
+}
+
+.menu-item-bg-effect {
+  @apply absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300;
+  background: linear-gradient(135deg, rgba(147, 51, 234, 0.1) 0%, rgba(126, 34, 206, 0.1) 100%);
+}
+
+.menu-item-content {
+  @apply relative z-10 flex items-center gap-3 w-full;
+}
+
+.menu-item-icon {
+  @apply w-5 h-5 flex items-center justify-center text-purple-300 group-hover:text-purple-100 transition-colors duration-300;
+}
+
+.menu-item-active .menu-item-icon {
+  @apply text-purple-200;
+}
+
+.menu-item-text {
+  @apply flex-1;
+}
+
+.menu-item-indicator {
+  @apply absolute right-0 top-1/2 -translate-y-1/2 w-1 h-0 bg-gradient-to-b from-purple-400 to-purple-600 rounded-l-full transition-all duration-300;
+}
+
+.menu-item-active .menu-item-indicator {
+  @apply h-8;
+}
+
+.profile-avatar {
+  @apply relative;
+}
+
+.profile-status {
+  @apply absolute bottom-0 right-0 w-3 h-3 bg-green-400 border-2 border-[#4a1d6d] rounded-full;
+}
+

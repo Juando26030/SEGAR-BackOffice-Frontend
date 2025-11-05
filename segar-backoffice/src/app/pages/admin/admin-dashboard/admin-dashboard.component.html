@@ -1,203 +1,211 @@
-<!-- Navbar Superior -->
-<nav class="bg-white border-b border-gray-200 fixed w-full top-0 z-50">
-  <div class="px-4 sm:px-6 lg:px-8">
-    <div class="flex justify-between items-center h-16">
-      <!-- Logo y Título -->
-      <div class="flex items-center space-x-4">
-        <div class="w-10 h-10 bg-gradient-to-br from-primary-600 to-primary-700 rounded-lg flex items-center justify-center">
-          <span class="text-white text-xl font-bold">S</span>
-        </div>
-        <div>
-          <h1 class="text-xl font-bold text-gray-900">SEGAR Admin</h1>
-          <p class="text-xs text-gray-500">Panel de Administración SaaS</p>
-        </div>
+<div class="panel-principal modern-professional">
+  <!-- Header con gradiente morado -->
+  <div class="panel-header enhanced">
+    <div class="header-background-pattern"></div>
+    <div class="header-content">
+      <div class="title-section">
+        <h1 class="panel-title animated">
+          <span class="title-main">Panel</span>
+          <span class="title-accent">Principal</span>
+        </h1>
+        <div class="title-indicator pulse"></div>
       </div>
-
-      <!-- Usuario y Acciones -->
-      <div class="flex items-center space-x-4">
-        <!-- Notificaciones -->
-        <button class="p-2 text-gray-400 hover:text-gray-600 relative">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-          </svg>
-          <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
-        </button>
-
-        <!-- Usuario -->
-        <div class="flex items-center space-x-3">
-          <div class="text-right">
-            <p class="text-sm font-medium text-gray-900">{{ userName || 'Super Admin' }}</p>
-            <p class="text-xs text-gray-500">{{ userEmail }}</p>
+      <div class="header-actions enhanced">
+        <button class="btn-refresh modern-btn" (click)="actualizarDatos()" [disabled]="isRefreshing" [class.loading]="isRefreshing">
+          <div class="btn-bg-effect"></div>
+          <div class="btn-content">
+            <i class="fas fa-sync-alt" [class.fa-spin]="isRefreshing"></i>
+            <span>{{ isRefreshing ? 'Actualizando...' : 'Actualizar' }}</span>
           </div>
-          <button (click)="logout()" class="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition">
-            Cerrar Sesión
-          </button>
+        </button>
+        <div class="last-update-card glass-effect">
+          <div class="update-icon">
+            <i class="fas fa-clock pulse-slow"></i>
+          </div>
+          <div class="update-text">
+            <span class="update-label">Última actualización</span>
+            <span class="update-time">{{ ultimaActualizacion | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</nav>
 
-<!-- Contenedor Principal -->
-<div class="flex min-h-screen bg-gray-50 pt-16">
-  <!-- Sidebar -->
-  <aside class="w-64 bg-white border-r border-gray-200 fixed h-full pt-4">
-    <nav class="px-4 space-y-2">
-      <!-- Dashboard -->
-      <a routerLink="/admin/dashboard" routerLinkActive="bg-primary-50 text-primary-700"
-         class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition group">
-        <span class="text-2xl">📊</span>
-        <span class="font-medium">Dashboard</span>
-      </a>
-
-      <!-- Tenants -->
-      <a (click)="navigateToTenants()"
-         class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition cursor-pointer group">
-        <span class="text-2xl">🏢</span>
-        <span class="font-medium">Tenants</span>
-      </a>
-
-      <!-- Usuarios -->
-      <a (click)="navigateToUsers()"
-         class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition cursor-pointer group">
-        <span class="text-2xl">👥</span>
-        <span class="font-medium">Usuarios</span>
-      </a>
-
-      <!-- Planes -->
-      <a class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition group">
-        <span class="text-2xl">💎</span>
-        <span class="font-medium">Planes</span>
-      </a>
-
-      <!-- Reportes -->
-      <a class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition group">
-        <span class="text-2xl">📈</span>
-        <span class="font-medium">Reportes</span>
-      </a>
-
-      <!-- Configuración -->
-      <a (click)="navigateToSettings()"
-         class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700 transition cursor-pointer group">
-        <span class="text-2xl">⚙️</span>
-        <span class="font-medium">Configuración</span>
-      </a>
-    </nav>
-  </aside>
-
-  <!-- Contenido Principal -->
-  <main class="flex-1 ml-64 p-8">
-    <!-- Header -->
-    <div class="mb-8">
-      <h2 class="text-3xl font-bold text-gray-900 mb-2">Dashboard Principal</h2>
-      <p class="text-gray-600">Bienvenido al panel de administración SaaS de SEGAR</p>
-    </div>
-
-    <!-- Estadísticas -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <div *ngFor="let stat of stats"
-           class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition">
-        <div class="flex items-center justify-between mb-4">
-          <div [class]="'w-12 h-12 rounded-lg flex items-center justify-center text-2xl bg-gradient-to-br ' + stat.gradient">
-            {{ stat.icon }}
-          </div>
-          <span *ngIf="stat.changeType === 'increase'"
-                class="text-sm font-medium text-green-600 flex items-center">
-            <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"/>
-            </svg>
-          </span>
-        </div>
-        <h3 class="text-gray-600 text-sm font-medium mb-1">{{ stat.title }}</h3>
-        <p class="text-3xl font-bold text-gray-900 mb-2">{{ stat.value }}</p>
-        <p class="text-sm text-gray-500">{{ stat.change }}</p>
+  <!-- KPIs con tema morado -->
+  <div class="kpi-container enhanced-grid">
+    <div class="kpi-card primary modern-card" data-animate="slideUp" data-delay="0">
+      <div class="kpi-background">
+        <div class="kpi-pattern"></div>
+        <div class="kpi-glow"></div>
       </div>
+      <div class="kpi-content">
+        <div class="kpi-header">
+          <div class="kpi-icon-wrapper primary">
+            <i class="fas fa-building kpi-icon"></i>
+            <div class="icon-ripple"></div>
+          </div>
+          <span class="kpi-label">Total Tenants</span>
+        </div>
+        <div class="kpi-value-section">
+          <div class="kpi-value counter">{{ stats[0].value }}</div>
+          <div class="kpi-trend positive enhanced">
+            <div class="trend-icon">
+              <i class="fas fa-trending-up"></i>
+            </div>
+            <span class="trend-text">{{ stats[0].change }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="kpi-shine"></div>
     </div>
 
-    <!-- Tenants Recientes -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
-      <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-        <div>
-          <h3 class="text-lg font-bold text-gray-900">Tenants Recientes</h3>
-          <p class="text-sm text-gray-600">Empresas registradas recientemente</p>
+    <div class="kpi-card warning modern-card" data-animate="slideUp" data-delay="100">
+      <div class="kpi-background">
+        <div class="kpi-pattern"></div>
+        <div class="kpi-glow"></div>
+      </div>
+      <div class="kpi-content">
+        <div class="kpi-header">
+          <div class="kpi-icon-wrapper warning">
+            <i class="fas fa-users kpi-icon"></i>
+            <div class="icon-ripple"></div>
+          </div>
+          <span class="kpi-label">Usuarios Activos</span>
         </div>
-        <button (click)="navigateToTenants()"
-                class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition text-sm font-medium">
-          Ver Todos
+        <div class="kpi-value-section">
+          <div class="kpi-value counter">{{ stats[1].value }}</div>
+          <div class="kpi-trend positive enhanced">
+            <div class="trend-icon">
+              <i class="fas fa-arrow-up"></i>
+            </div>
+            <span class="trend-text">{{ stats[1].change }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="kpi-shine"></div>
+    </div>
+
+    <div class="kpi-card success modern-card" data-animate="slideUp" data-delay="200">
+      <div class="kpi-background">
+        <div class="kpi-pattern"></div>
+        <div class="kpi-glow"></div>
+      </div>
+      <div class="kpi-content">
+        <div class="kpi-header">
+          <div class="kpi-icon-wrapper success">
+            <i class="fas fa-file-alt kpi-icon"></i>
+            <div class="icon-ripple"></div>
+          </div>
+          <span class="kpi-label">Trámites Totales</span>
+        </div>
+        <div class="kpi-value-section">
+          <div class="kpi-value counter">{{ stats[2].value }}</div>
+          <div class="kpi-trend positive enhanced">
+            <div class="trend-icon">
+              <i class="fas fa-rocket"></i>
+            </div>
+            <span class="trend-text">{{ stats[2].change }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="kpi-shine"></div>
+    </div>
+
+    <div class="kpi-card danger modern-card" data-animate="slideUp" data-delay="300">
+      <div class="kpi-background">
+        <div class="kpi-pattern"></div>
+        <div class="kpi-glow"></div>
+      </div>
+      <div class="kpi-content">
+        <div class="kpi-header">
+          <div class="kpi-icon-wrapper danger">
+            <i class="fas fa-dollar-sign kpi-icon"></i>
+            <div class="icon-ripple"></div>
+          </div>
+          <span class="kpi-label">Ingresos (MRR)</span>
+        </div>
+        <div class="kpi-value-section">
+          <div class="kpi-value counter">{{ stats[3].value }}</div>
+          <div class="kpi-trend positive enhanced">
+            <div class="trend-icon">
+              <i class="fas fa-chart-line"></i>
+            </div>
+            <span class="trend-text">{{ stats[3].change }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="kpi-shine"></div>
+    </div>
+  </div>
+
+  <!-- Tabla de Tenants Recientes -->
+  <div class="data-section enhanced" data-animate="fadeInUp" data-delay="400">
+    <div class="section-header glass-modern">
+      <div class="section-title enhanced">
+        <h2 class="section-main-title">Tenants Recientes</h2>
+        <div class="section-accent-line"></div>
+        <span class="section-subtitle">
+          <i class="fas fa-building"></i>
+          Últimos registros
+        </span>
+      </div>
+      <div class="section-actions modern">
+        <button (click)="navigateToTenants()" class="btn-action primary-action">
+          <i class="fas fa-th-large"></i>
+          <span>Ver Todos</span>
         </button>
       </div>
-      <div class="overflow-x-auto">
-        <table class="w-full">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Empresa</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NIT</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plan</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuarios</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
-            <tr *ngFor="let tenant of recentTenants" class="hover:bg-gray-50">
-              <td class="px-6 py-4 whitespace-nowrap">
-                <div class="flex items-center">
-                  <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white font-bold mr-3">
-                    {{ tenant.name.charAt(0) }}
-                  </div>
-                  <div>
-                    <div class="text-sm font-medium text-gray-900">{{ tenant.name }}</div>
-                  </div>
+    </div>
+
+    <div class="table-container modern-table">
+      <table class="data-table enhanced">
+        <thead>
+          <tr>
+            <th>Empresa</th>
+            <th>NIT</th>
+            <th>Plan</th>
+            <th>Estado</th>
+            <th>Usuarios</th>
+            <th>Fecha Registro</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let tenant of recentTenants" class="table-row animated">
+            <td>
+              <div class="tenant-info">
+                <div class="tenant-avatar">
+                  <i class="fas fa-building"></i>
                 </div>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                {{ tenant.nit }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span [class]="'px-3 py-1 rounded-full text-xs font-medium ' + getPlanColor(tenant.plan)">
-                  {{ tenant.plan }}
-                </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap">
-                <span [class]="'px-3 py-1 rounded-full text-xs font-medium ' + getStatusColor(tenant.status)">
-                  {{ tenant.status }}
-                </span>
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                {{ tenant.users }} usuarios
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                {{ tenant.createdAt }}
-              </td>
-              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                <button class="text-primary-600 hover:text-primary-900 mr-3">Ver</button>
-                <button class="text-gray-600 hover:text-gray-900">Editar</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+                <span class="tenant-name">{{ tenant.name }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="tenant-nit">{{ tenant.nit }}</span>
+            </td>
+            <td>
+              <span [class]="'badge ' + getPlanColor(tenant.plan)">
+                {{ tenant.plan }}
+              </span>
+            </td>
+            <td>
+              <span [class]="'badge ' + getStatusColor(tenant.status)">
+                <i class="fas fa-circle status-dot"></i>
+                {{ tenant.status }}
+              </span>
+            </td>
+            <td>
+              <span class="user-count">
+                <i class="fas fa-users"></i>
+                {{ tenant.users }}
+              </span>
+            </td>
+            <td>
+              <span class="date-text">{{ tenant.createdAt | date:'dd/MM/yyyy' }}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
-
-    <!-- Gráficas Placeholder -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <!-- Crecimiento de Tenants -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h3 class="text-lg font-bold text-gray-900 mb-4">Crecimiento de Tenants</h3>
-        <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
-          <p class="text-gray-500">📊 Gráfica próximamente</p>
-        </div>
-      </div>
-
-      <!-- Ingresos Mensuales -->
-      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <h3 class="text-lg font-bold text-gray-900 mb-4">Ingresos Mensuales</h3>
-        <div class="h-64 flex items-center justify-center bg-gray-50 rounded-lg">
-          <p class="text-gray-500">💰 Gráfica próximamente</p>
-        </div>
-      </div>
-    </div>
-  </main>
+  </div>
 </div>
 

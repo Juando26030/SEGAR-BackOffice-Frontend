@@ -1,0 +1,117 @@
+<!-- Sidebar Morado Oscuro - Tema SEGAR Admin -->
+<aside class="w-64 bg-gradient-to-b from-[#4a1d6d] to-[#3a1552] text-white hidden md:flex flex-col h-full shadow-2xl">
+  <!-- Header del Sidebar -->
+  <div class="h-16 flex items-center justify-center border-b border-[#5a2d7d] px-4 relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
+    <div class="relative flex items-center gap-2">
+      <div class="w-8 h-8 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center p-1">
+        <span class="text-xl font-bold">S</span>
+      </div>
+      <span class="text-xl font-bold text-white tracking-wide">SEGAR Admin</span>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="flex-1 px-3 py-6 space-y-1">
+    <!-- Panel Principal -->
+    <a routerLink="/admin/dashboard"
+       routerLinkActive="menu-item-active"
+       class="menu-item group">
+      <div class="menu-item-bg-effect"></div>
+      <div class="menu-item-content">
+        <div class="menu-item-icon">
+          <i class="fas fa-home"></i>
+        </div>
+        <span class="menu-item-text">Panel Principal</span>
+      </div>
+      <div class="menu-item-indicator"></div>
+    </a>
+
+    <!-- Tenants (antes Usuarios) -->
+    <a routerLink="/admin/tenants"
+       routerLinkActive="menu-item-active"
+       class="menu-item group">
+      <div class="menu-item-bg-effect"></div>
+      <div class="menu-item-content">
+        <div class="menu-item-icon">
+          <i class="fas fa-building"></i>
+        </div>
+        <span class="menu-item-text">Tenants</span>
+      </div>
+      <div class="menu-item-indicator"></div>
+    </a>
+
+    <!-- Búsqueda Global -->
+    <a routerLink="/admin/busqueda"
+       routerLinkActive="menu-item-active"
+       class="menu-item group">
+      <div class="menu-item-bg-effect"></div>
+      <div class="menu-item-content">
+        <div class="menu-item-icon">
+          <i class="fas fa-search"></i>
+        </div>
+        <span class="menu-item-text">Búsqueda Global</span>
+      </div>
+      <div class="menu-item-indicator"></div>
+    </a>
+
+    <!-- Configuración -->
+    <a routerLink="/admin/settings"
+       routerLinkActive="menu-item-active"
+       class="menu-item group">
+      <div class="menu-item-bg-effect"></div>
+      <div class="menu-item-content">
+        <div class="menu-item-icon">
+          <i class="fas fa-cog"></i>
+        </div>
+        <span class="menu-item-text">Configuración</span>
+      </div>
+      <div class="menu-item-indicator"></div>
+    </a>
+
+    <!-- Ayuda -->
+    <a href="#" class="menu-item group">
+      <div class="menu-item-bg-effect"></div>
+      <div class="menu-item-content">
+        <div class="menu-item-icon">
+          <i class="fas fa-question-circle"></i>
+        </div>
+        <span class="menu-item-text">Ayuda</span>
+      </div>
+      <div class="menu-item-indicator"></div>
+    </a>
+
+    <!-- Cerrar Sesión -->
+    <button (click)="cerrarSesion()" class="menu-item group w-full text-left">
+      <div class="menu-item-bg-effect bg-red-500/10"></div>
+      <div class="menu-item-content">
+        <div class="menu-item-icon text-red-400">
+          <i class="fas fa-sign-out-alt"></i>
+        </div>
+        <span class="menu-item-text text-red-300">Cerrar Sesión</span>
+      </div>
+      <div class="menu-item-indicator bg-red-500"></div>
+    </button>
+  </nav>
+
+  <!-- User Profile Section -->
+  <div class="px-4 py-4 border-t border-[#5a2d7d] relative">
+    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
+    <div class="relative flex items-center gap-3 p-3 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/15 transition-all duration-300 cursor-pointer group">
+      <div class="profile-avatar">
+        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 flex items-center justify-center text-sm font-bold shadow-lg group-hover:scale-110 transition-transform duration-300">
+          {{ userProfile.initials }}
+        </div>
+        <div class="profile-status"></div>
+      </div>
+      <div class="flex-1">
+        <p class="text-sm font-semibold text-white">{{ userProfile.name || 'Cargando...' }}</p>
+        <p class="text-xs text-purple-200">{{ userProfile.role || 'Administrador' }}</p>
+      </div>
+      <div class="text-white/60 group-hover:text-white transition-colors duration-300">
+        <i class="fas fa-chevron-right text-xs"></i>
+      </div>
+    </div>
+  </div>
+</aside>
+
