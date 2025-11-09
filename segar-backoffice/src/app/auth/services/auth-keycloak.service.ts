@@ -65,11 +65,18 @@ export class AuthKeycloakService {
     console.log('🔍 Obteniendo tipo de usuario...');
     console.log('   Roles disponibles:', this.getUserRoles());
 
-    // Verificar super-admin (puede venir como 'super-admin' o 'SUPER_ADMIN')
-    if (this.hasRole('SUPER_ADMIN') || this.getUserRoles().some(r => r.toLowerCase() === 'super-admin')) {
-      console.log('✅ Usuario identificado como SUPER_ADMIN');
+    // Verificar super.admin del cliente segar-backoffice (prioridad máxima)
+    if (this.hasBackofficeRole('super.admin')) {
+      console.log('✅ Usuario identificado como SUPER_ADMIN (rol del cliente segar-backoffice)');
       return 'SUPER_ADMIN';
     }
+
+    // Verificar super-admin (puede venir como 'super-admin' o 'SUPER_ADMIN' en realm roles)
+    if (this.hasRole('SUPER_ADMIN') || this.getUserRoles().some(r => r.toLowerCase() === 'super-admin')) {
+      console.log('✅ Usuario identificado como SUPER_ADMIN (realm role)');
+      return 'SUPER_ADMIN';
+    }
+
     if (this.hasRole('ADMIN')) {
       console.log('✅ Usuario identificado como ADMIN');
       return 'ADMIN';
@@ -166,6 +173,90 @@ export class AuthKeycloakService {
    */
   getUsername(): string {
     return this.keycloakService.getUsername();
+  }
+
+  /**
+   * Obtiene la instancia de Keycloak
+   * Útil para operaciones avanzadas como updateToken
+   */
+  getKeycloakInstance() {
+    return this.keycloakService.getKeycloakInstance();
+  }
+
+  /**
+   * Verifica si el usuario tiene un rol específico del cliente segar-backoffice
+   * @param role Nombre del rol a verificar (ej: 'super.admin')
+   */
+  hasBackofficeRole(role: string): boolean {
+    try {
+      const tokenParsed = this.keycloakService.getKeycloakInstance().tokenParsed;
+
+      if (!tokenParsed) {
+        console.warn('⚠️ No hay token parseado disponible');
+        return false;
+      }
+
+      // Mostrar toda la estructura de resource_access para debugging
+      console.log('🔍 resource_access completo:', tokenParsed?.resource_access);
+
+      // Obtener roles del cliente segar-backoffice
+      const backofficeRoles = tokenParsed?.resource_access?.['segar-backoffice']?.roles || [];
+
+      console.log('🔍 Roles del cliente segar-backoffice:', backofficeRoles);
+      console.log('🔍 Tipo de datos:', Array.isArray(backofficeRoles) ? 'Array' : typeof backofficeRoles);
+      console.log('🔍 Cantidad de roles:', backofficeRoles.length);
+
+      // Mostrar cada rol individualmente
+      backofficeRoles.forEach((r: string, index: number) => {
+        console.log(`   Rol [${index}]: "${r}" (tipo: ${typeof r}, length: ${r.length})`);
+      });
+
+      console.log('🔍 Buscando rol:', `"${role}"`);
+
+      // Verificar múltiples variantes del rol
+      const rolesToCheck = [
+        'super.admin',
+        'super-admin',
+        'superadmin',
+        'SUPER_ADMIN',
+        'SUPER-ADMIN',
+        'SUPERADMIN'
+      ];
+
+      console.log('🔍 Variantes que se van a verificar:', rolesToCheck);
+
+      // Verificar si el rol existe (case-insensitive y múltiples formatos)
+      const hasRole = backofficeRoles.some((r: string) => {
+        const roleNormalized = r.toLowerCase().trim();
+        const match = rolesToCheck.some(variant => variant.toLowerCase() === roleNormalized);
+
+        if (match) {
+          console.log(`✅ MATCH ENCONTRADO: "${r}" coincide con alguna variante`);
+        }
+
+        return match;
+      });
+
+      console.log('✅ Resultado de verificación:', hasRole);
+
+      return hasRole;
+    } catch (error) {
+      console.error('❌ Error al verificar rol del backoffice:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Obtiene todos los roles del cliente segar-backoffice
+   */
+  getBackofficeRoles(): string[] {
+    try {
+      const tokenParsed = this.keycloakService.getKeycloakInstance().tokenParsed;
+      return tokenParsed?.resource_access?.['segar-backoffice']?.roles || [];
+    } catch (error) {
+      console.error('❌ Error al obtener roles del backoffice:', error);
+      return [];
+    }
   }
 }
 

@@ -29,12 +29,33 @@ function initializeKeycloak(keycloak: KeycloakService) {
         onLoad: 'check-sso', // Verificar SSO pero no forzar login
         silentCheckSsoRedirectUri: window.location.origin + '/silent-check-sso.html',
         checkLoginIframe: false,
+        responseMode: 'fragment', // Usar fragment para el callback
         flow: 'standard',
         pkceMethod: 'S256' // Agregar PKCE para mayor seguridad
       },
       enableBearerInterceptor: true,
       bearerPrefix: 'Bearer',
       bearerExcludedUrls: ['/assets', '/']
+    })
+    .then((authenticated) => {
+      console.log('🔐 Keycloak inicializado. Autenticado:', authenticated);
+
+      // Si está autenticado después del callback, redirigir al welcome
+      if (authenticated) {
+        const currentUrl = window.location.href;
+        console.log('🔍 URL actual:', currentUrl);
+
+        // Si estamos en el callback o en login y está autenticado, redirigir
+        if (currentUrl.includes('/auth/callback') || currentUrl.includes('/login')) {
+          console.log('✅ Autenticado después del callback, redirigiendo...');
+          window.location.href = '/admin/welcome';
+        }
+      }
+
+      return authenticated;
+    })
+    .catch((error) => {
+      console.error('❌ Error al inicializar Keycloak:', error);
     });
 }
 

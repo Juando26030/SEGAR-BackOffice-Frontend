@@ -6,28 +6,31 @@ export const authGuard: CanActivateFn = async (route, state) => {
   const authService = inject(AuthKeycloakService);
   const router = inject(Router);
 
-  console.log('🔒 AuthGuard verificando acceso...');
+  console.log('🔒 AuthGuard verificando acceso a:', state.url);
 
   if (authService.isLoggedIn()) {
     console.log('✅ Usuario autenticado');
 
-    // Verificar si requiere rol de admin/super-admin
-    if (route.data['requireAdmin']) {
-      const userType = authService.getUserType();
-      console.log('🔍 Verificando permisos de admin. Tipo de usuario:', userType);
+    // Verificar si requiere rol de super admin del backoffice
+    if (route.data['requireSuperAdmin']) {
+      const hasSuperAdminRole = authService.hasBackofficeRole('super.admin');
+      console.log('🔍 Verificando rol super.admin del cliente segar-backoffice:', hasSuperAdminRole);
 
-      if (userType !== 'SUPER_ADMIN') {
-        console.warn('⚠️ Usuario sin permisos de administrador');
+      if (!hasSuperAdminRole) {
+        console.warn('⚠️ Usuario no tiene rol super.admin en segar-backoffice');
+        console.log('🔄 Redirigiendo a /unauthorized');
         router.navigate(['/unauthorized']);
         return false;
       }
+
+      console.log('✅ Usuario tiene rol super.admin - Acceso concedido');
     }
 
     return true;
   }
 
-  console.log('❌ Usuario no autenticado, redirigiendo a landing');
-  window.location.href = '/';
+  console.log('❌ Usuario no autenticado, redirigiendo a login');
+  router.navigate(['/login']);
   return false;
 };
 

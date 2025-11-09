@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { AuthKeycloakService } from '../../../auth/services/auth-keycloak.service';
-import { NavigationGuardService } from '../../../core/services/navigation-guard.service';
 
 interface DashboardStat {
   title: string;
@@ -22,11 +21,10 @@ interface DashboardStat {
 })
 export class AdminDashboardComponent implements OnInit {
 
-  userName: string = '';
-  userEmail: string = '';
   ultimaActualizacion: Date = new Date();
   isRefreshing = false;
 
+  // KPIs principales
   stats: DashboardStat[] = [
     {
       title: 'Tenants Activos',
@@ -45,7 +43,15 @@ export class AdminDashboardComponent implements OnInit {
       gradient: 'from-green-500 to-green-600'
     },
     {
-      title: 'Trámites en el Sistema',
+      title: 'Ingresos Mensuales',
+      value: '$24,500',
+      change: '+12% vs mes anterior',
+      changeType: 'increase',
+      icon: '💰',
+      gradient: 'from-purple-500 to-purple-600'
+    },
+    {
+      title: 'Trámites Totales',
       value: '1.2K',
       change: '+156 este mes',
       changeType: 'increase',
@@ -62,110 +68,58 @@ export class AdminDashboardComponent implements OnInit {
     }
   ];
 
+  // Tenants recientes
   recentTenants = [
     {
-      name: 'Farmacéutica ABC',
-      nit: '900123456-1',
-      plan: 'Profesional',
-      status: 'Activo',
-      users: 15,
-      createdAt: '2025-01-05'
-    },
-    {
-      name: 'Laboratorios XYZ',
-      nit: '900789012-2',
+      name: 'AlimentosCol S.A.',
       plan: 'Enterprise',
-      status: 'Activo',
-      users: 32,
-      createdAt: '2025-01-03'
+      users: 45,
+      status: 'active',
+      since: 'Hace 2 días'
     },
     {
-      name: 'Cosmética Natural Ltda',
-      nit: '900345678-3',
-      plan: 'Starter',
-      status: 'Prueba',
-      users: 5,
-      createdAt: '2025-01-02'
+      name: 'FarmaLat Internacional',
+      plan: 'Professional',
+      users: 28,
+      status: 'active',
+      since: 'Hace 5 días'
+    },
+    {
+      name: 'Cosmética Natural',
+      plan: 'Professional',
+      users: 15,
+      status: 'active',
+      since: 'Hace 1 semana'
     }
   ];
 
   constructor(
-    private authService: AuthKeycloakService,
     private router: Router,
-    private navigationGuard: NavigationGuardService
+    private authService: AuthKeycloakService
   ) {}
 
-  async ngOnInit() {
-    // Verificar autenticación
-    if (!this.authService.isLoggedIn()) {
-      console.warn('⚠️ Usuario no autenticado, redirigiendo al login');
-      window.location.href = 'http://localhost:4200/auth/login';
-      return;
-    }
-
-    // Prevenir navegación hacia atrás después de logout
-    this.navigationGuard.preventBackNavigation();
-
-    console.log('✅ Super Admin accediendo al dashboard');
-    this.loadUserInfo();
+  ngOnInit() {
+    console.log('Dashboard Super Admin cargado');
   }
 
-  async loadUserInfo() {
-    const userProfile = await this.authService.getUserProfile();
-    if (userProfile) {
-      this.userName = `${userProfile.firstName || ''} ${userProfile.lastName || ''}`.trim();
-      this.userEmail = userProfile.email || '';
-    }
-  }
-
-  async logout() {
-    await this.authService.logout();
-  }
-
-  actualizarDatos() {
+  async refreshDashboard() {
     this.isRefreshing = true;
-    setTimeout(() => {
-      this.ultimaActualizacion = new Date();
-      this.isRefreshing = false;
-    }, 1000);
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    this.ultimaActualizacion = new Date();
+    this.isRefreshing = false;
+  }
+
+  getTenantStatusClass(status: string): string {
+    const classes: { [key: string]: string } = {
+      'active': 'bg-green-100 text-green-800',
+      'trial': 'bg-yellow-100 text-yellow-800',
+      'inactive': 'bg-gray-100 text-gray-800'
+    };
+    return classes[status] || 'bg-gray-100 text-gray-800';
   }
 
   navigateToTenants() {
     this.router.navigate(['/admin/tenants']);
-  }
-
-  navigateToUsers() {
-    this.router.navigate(['/admin/users']);
-  }
-
-  navigateToSettings() {
-    this.router.navigate(['/admin/settings']);
-  }
-
-  getStatusColor(status: string): string {
-    switch (status.toLowerCase()) {
-      case 'activo':
-        return 'bg-green-100 text-green-800';
-      case 'prueba':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'suspendido':
-        return 'bg-red-100 text-red-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  }
-
-  getPlanColor(plan: string): string {
-    switch (plan.toLowerCase()) {
-      case 'enterprise':
-        return 'bg-purple-100 text-purple-800';
-      case 'profesional':
-        return 'bg-blue-100 text-blue-800';
-      case 'starter':
-        return 'bg-green-100 text-green-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
   }
 }
 

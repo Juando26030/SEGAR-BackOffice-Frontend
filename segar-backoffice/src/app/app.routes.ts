@@ -6,11 +6,17 @@ import { AdminMenuLayoutComponent } from './layout/admin-menu-layout/admin-menu-
 import { AdminDashboardComponent } from './pages/admin/admin-dashboard/admin-dashboard.component';
 import { SuperAdminWelcomeComponent } from './pages/admin/super-admin-welcome/super-admin-welcome.component';
 import { TenantsListComponent } from './pages/admin/tenants-list/tenants-list.component';
+import { LoginComponent } from './pages/login/login.component';
+import { authGuard } from './auth/guards/auth.guard';
 
 export const routes: Routes = [
   {
     path: '',
     component: LandingComponent
+  },
+  {
+    path: 'login',
+    component: LoginComponent
   },
   {
     path: 'auth/callback',
@@ -19,6 +25,8 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: AdminMenuLayoutComponent,
+    canActivate: [authGuard],
+    data: { requireSuperAdmin: true },
     children: [
       {
         path: '',
