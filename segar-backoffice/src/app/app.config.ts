@@ -35,7 +35,18 @@ function initializeKeycloak(keycloak: KeycloakService) {
       },
       enableBearerInterceptor: true,
       bearerPrefix: 'Bearer',
-      bearerExcludedUrls: ['/assets', '/']
+      bearerExcludedUrls: ['/assets', '/silent-check-sso.html'],
+      // Incluir URLs del backend que necesitan autenticación
+      shouldAddToken: (request) => {
+        const url = request.url;
+        // Agregar token a todas las peticiones al backend
+        if (url.includes('localhost:8090') || url.includes('/api/')) {
+          console.log('🔐 Agregando token a petición del backend:', url);
+          return true;
+        }
+        // No agregar token a assets ni archivos estáticos
+        return !url.includes('/assets') && !url.includes('.html');
+      }
     })
     .then((authenticated) => {
       console.log('🔐 Keycloak inicializado. Autenticado:', authenticated);

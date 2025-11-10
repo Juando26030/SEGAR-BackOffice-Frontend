@@ -2,23 +2,27 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { HttpClientModule } from '@angular/common/http';
+import { EmpresaService } from '../../../core/services/empresa.service';
+import { Empresa } from '../../../core/models/empresa.model';
 
 interface Tenant {
   id?: number;
-  nombre: string;
+  razonSocial: string;
   nit: string;
   email: string;
   telefono: string;
-  plan: 'Starter' | 'Professional' | 'Enterprise';
-  estado: 'Activo' | 'Inactivo' | 'Prueba';
-  usuariosActivos: number;
-  fechaCreacion: string;
+  representanteLegal: string;
+  direccion?: string;
+  ciudad?: string;
+  estado: 'ACTIVA' | 'INACTIVA' | 'SUSPENDIDA';
 }
 
 @Component({
   selector: 'app-tenants-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, HttpClientModule],
+  providers: [EmpresaService],
   templateUrl: './tenants-list.component.html',
   styleUrls: ['./tenants-list.component.css']
 })
@@ -35,17 +39,20 @@ export class TenantsListComponent implements OnInit {
   filtroEstado = '';
 
   tenantForm: Tenant = {
-    nombre: '',
+    razonSocial: '',
     nit: '',
     email: '',
     telefono: '',
-    plan: 'Professional',
-    estado: 'Prueba',
-    usuariosActivos: 0,
-    fechaCreacion: new Date().toISOString().split('T')[0]
+    representanteLegal: '',
+    direccion: '',
+    ciudad: '',
+    estado: 'ACTIVA'
   };
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private empresaService: EmpresaService
+  ) {}
 
   ngOnInit() {
     this.cargarTenants();
@@ -54,59 +61,35 @@ export class TenantsListComponent implements OnInit {
   cargarTenants() {
     this.cargando = true;
 
-    // Datos ficticios para demostración
-    setTimeout(() => {
-      this.tenants = [
-        {
-          id: 1,
-          nombre: 'AlimentosCol S.A.',
-          nit: '900123456-1',
-          email: 'contacto@alimentoscol.com',
-          telefono: '+57 300 1234567',
-          plan: 'Enterprise',
-          estado: 'Activo',
-          usuariosActivos: 45,
-          fechaCreacion: '2024-01-15'
-        },
-        {
-          id: 2,
-          nombre: 'FarmaLat Internacional',
-          nit: '900789012-2',
-          email: 'info@farmalat.com',
-          telefono: '+57 301 9876543',
-          plan: 'Professional',
-          estado: 'Activo',
-          usuariosActivos: 28,
-          fechaCreacion: '2024-02-20'
-        },
-        {
-          id: 3,
-          nombre: 'Cosmética Natural Ltda',
-          nit: '900345678-3',
-          email: 'ventas@cosmetica.com',
-          telefono: '+57 320 5551234',
-          plan: 'Professional',
-          estado: 'Activo',
-          usuariosActivos: 15,
-          fechaCreacion: '2024-03-10'
-        },
-        {
-          id: 4,
-          nombre: 'Dispositivos Médicos S.A.',
-          nit: '900456789-4',
-          email: 'contacto@dispositivosmed.com',
-          telefono: '+57 315 4567890',
-          plan: 'Starter',
-          estado: 'Prueba',
-          usuariosActivos: 8,
-          fechaCreacion: '2024-11-01'
-        }
-      ];
+    this.empresaService.getAll().subscribe({
+      next: (empresas: Empresa[]) => {
+        // Mapear Empresa a Tenant para compatibilidad con el template
+        this.tenants = empresas.map(empresa => ({
+          id: empresa.id,
+          razonSocial: empresa.razonSocial,
+          nit: empresa.nit,
+          email: empresa.email,
+          telefono: empresa.telefono,
+          representanteLegal: empresa.representanteLegal,
+          direccion: empresa.direccion,
+          ciudad: empresa.ciudad,
+          estado: empresa.estado as 'ACTIVA' | 'INACTIVA' | 'SUSPENDIDA'
+        }));
+        this.tenantsFiltrados = [...this.tenants];
+        this.cargando = false;
+      },
+      error: (error) => {
+        console.error('Error al cargar empresas:', error);
+        this.mensajeError = 'Error al cargar las empresas. Por favor, intenta nuevamente.';
+        this.cargando = false;
 
-      this.tenantsFiltrados = [...this.tenants];
-      this.cargando = false;
-    }, 800);
+        setTimeout(() => {
+          this.mensajeError = '';
+        }, 5000);
+      }
+    });
   }
+
 
   toggleFormulario() {
     this.mostrarFormulario = !this.mostrarFormulario;
@@ -118,32 +101,97 @@ export class TenantsListComponent implements OnInit {
   guardarTenant() {
     this.guardando = true;
 
-    setTimeout(() => {
-      if (this.editandoTenant) {
-        const index = this.tenants.findIndex(t => t.id === this.tenantForm.id);
-        if (index !== -1) {
-          this.tenants[index] = { ...this.tenantForm };
-          this.mensajeExito = 'Tenant actualizado exitosamente';
+    const empresaData: Empresa = {
+      id: this.tenantForm.id,
+      razonSocial: this.tenantForm.razonSocial,
+      nit: this.tenantForm.nit,
+      email: this.tenantForm.email,
+      telefono: this.tenantForm.telefono,
+      representanteLegal: this.tenantForm.representanteLegal,
+      direccion: this.tenantForm.direccion || '',
+      ciudad: this.tenantForm.ciudad || '',
+      estado: this.tenantForm.estado,
+      nombreComercial: '',
+      pais: 'Colombia',
+      tipoEmpresa: 'CLIENTE'
+    };
+
+    if (this.editandoTenant && this.tenantForm.id) {
+      // Actualizar empresa existente
+      this.empresaService.update(this.tenantForm.id, empresaData).subscribe({
+        next: (empresaActualizada) => {
+          const index = this.tenants.findIndex(t => t.id === empresaActualizada.id);
+          if (index !== -1) {
+            this.tenants[index] = {
+              id: empresaActualizada.id,
+              razonSocial: empresaActualizada.razonSocial,
+              nit: empresaActualizada.nit,
+              email: empresaActualizada.email,
+              telefono: empresaActualizada.telefono,
+              representanteLegal: empresaActualizada.representanteLegal,
+              direccion: empresaActualizada.direccion,
+              ciudad: empresaActualizada.ciudad,
+              estado: empresaActualizada.estado as 'ACTIVA' | 'INACTIVA' | 'SUSPENDIDA'
+            };
+          }
+
+          this.mensajeExito = 'Empresa actualizada exitosamente';
+          this.filtrarTenants();
+          this.guardando = false;
+          this.mostrarFormulario = false;
+          this.resetForm();
+
+          setTimeout(() => {
+            this.mensajeExito = '';
+          }, 3000);
+        },
+        error: (error) => {
+          console.error('Error al actualizar empresa:', error);
+          this.mensajeError = error.error?.error || 'Error al actualizar la empresa';
+          this.guardando = false;
+
+          setTimeout(() => {
+            this.mensajeError = '';
+          }, 5000);
         }
-      } else {
-        const newTenant = {
-          ...this.tenantForm,
-          id: this.tenants.length + 1,
-          usuariosActivos: 0
-        };
-        this.tenants.push(newTenant);
-        this.mensajeExito = 'Tenant creado exitosamente';
-      }
+      });
+    } else {
+      // Crear nueva empresa
+      this.empresaService.create(empresaData).subscribe({
+        next: (nuevaEmpresa) => {
+          this.tenants.push({
+            id: nuevaEmpresa.id,
+            razonSocial: nuevaEmpresa.razonSocial,
+            nit: nuevaEmpresa.nit,
+            email: nuevaEmpresa.email,
+            telefono: nuevaEmpresa.telefono,
+            representanteLegal: nuevaEmpresa.representanteLegal,
+            direccion: nuevaEmpresa.direccion,
+            ciudad: nuevaEmpresa.ciudad,
+            estado: nuevaEmpresa.estado as 'ACTIVA' | 'INACTIVA' | 'SUSPENDIDA'
+          });
 
-      this.filtrarTenants();
-      this.guardando = false;
-      this.mostrarFormulario = false;
-      this.resetForm();
+          this.mensajeExito = 'Empresa creada exitosamente';
+          this.filtrarTenants();
+          this.guardando = false;
+          this.mostrarFormulario = false;
+          this.resetForm();
 
-      setTimeout(() => {
-        this.mensajeExito = '';
-      }, 3000);
-    }, 1000);
+          setTimeout(() => {
+            this.mensajeExito = '';
+          }, 3000);
+        },
+        error: (error) => {
+          console.error('Error al crear empresa:', error);
+          this.mensajeError = error.error?.error || 'Error al crear la empresa';
+          this.guardando = false;
+
+          setTimeout(() => {
+            this.mensajeError = '';
+          }, 5000);
+        }
+      });
+    }
   }
 
   editarTenant(tenant: Tenant) {
@@ -154,14 +202,28 @@ export class TenantsListComponent implements OnInit {
   }
 
   eliminarTenant(tenant: Tenant) {
-    if (confirm(`¿Estás seguro de que deseas eliminar a ${tenant.nombre}?`)) {
-      this.tenants = this.tenants.filter(t => t.id !== tenant.id);
-      this.filtrarTenants();
-      this.mensajeExito = 'Tenant eliminado exitosamente';
+    if (!tenant.id) return;
 
-      setTimeout(() => {
-        this.mensajeExito = '';
-      }, 3000);
+    if (confirm(`¿Estás seguro de que deseas eliminar a ${tenant.razonSocial}?`)) {
+      this.empresaService.delete(tenant.id).subscribe({
+        next: () => {
+          this.tenants = this.tenants.filter(t => t.id !== tenant.id);
+          this.filtrarTenants();
+          this.mensajeExito = 'Empresa eliminada exitosamente';
+
+          setTimeout(() => {
+            this.mensajeExito = '';
+          }, 3000);
+        },
+        error: (error) => {
+          console.error('Error al eliminar empresa:', error);
+          this.mensajeError = error.error?.error || 'Error al eliminar la empresa';
+
+          setTimeout(() => {
+            this.mensajeError = '';
+          }, 5000);
+        }
+      });
     }
   }
 
@@ -172,14 +234,14 @@ export class TenantsListComponent implements OnInit {
 
   resetForm() {
     this.tenantForm = {
-      nombre: '',
+      razonSocial: '',
       nit: '',
       email: '',
       telefono: '',
-      plan: 'Professional',
-      estado: 'Prueba',
-      usuariosActivos: 0,
-      fechaCreacion: new Date().toISOString().split('T')[0]
+      representanteLegal: '',
+      direccion: '',
+      ciudad: '',
+      estado: 'ACTIVA'
     };
     this.editandoTenant = false;
   }
@@ -190,9 +252,10 @@ export class TenantsListComponent implements OnInit {
     if (this.searchTerm) {
       const term = this.searchTerm.toLowerCase();
       filtered = filtered.filter(t =>
-        t.nombre.toLowerCase().includes(term) ||
+        t.razonSocial.toLowerCase().includes(term) ||
         t.nit.toLowerCase().includes(term) ||
-        t.email.toLowerCase().includes(term)
+        t.email.toLowerCase().includes(term) ||
+        (t.representanteLegal && t.representanteLegal.toLowerCase().includes(term))
       );
     }
 
