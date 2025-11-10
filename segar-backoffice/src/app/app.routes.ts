@@ -8,6 +8,8 @@ import { SuperAdminWelcomeComponent } from './pages/admin/super-admin-welcome/su
 import { TenantsListComponent } from './pages/admin/tenants-list/tenants-list.component';
 import { LoginComponent } from './pages/login/login.component';
 import { authGuard } from './auth/guards/auth.guard';
+import { BusquedaGlobalComponent } from './pages/admin/busqueda-global/busqueda-global.component';
+import { ConfiguracionComponent } from './pages/admin/configuracion/configuracion.component';
 
 export const routes: Routes = [
   {
@@ -47,11 +49,11 @@ export const routes: Routes = [
       },
       {
         path: 'busqueda',
-        component: TenantsListComponent // Reutilizar por ahora
+        component: BusquedaGlobalComponent
       },
       {
         path: 'settings',
-        component: TenantsListComponent // Reutilizar por ahora
+        component: ConfiguracionComponent
       }
     ]
   },

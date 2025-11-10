@@ -1,0 +1,306 @@
+<div class="config-container">
+  <!-- Header Mejorado -->
+  <div class="config-header">
+    <div class="config-header-content">
+      <div class="config-header-left">
+        <h1>
+          <svg class="config-header-icon" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"></path>
+          </svg>
+          Configuración
+        </h1>
+        <p>Personaliza tu experiencia en la plataforma</p>
+      </div>
+
+      <div *ngIf="hasChanges" class="config-changes-badge">
+        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+        </svg>
+        Tienes cambios sin guardar
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensajes -->
+  <div *ngIf="mensajeExito" class="config-message success">
+    <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+    </svg>
+    {{ mensajeExito }}
+  </div>
+
+  <div *ngIf="mensajeError" class="config-message error">
+    <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+    </svg>
+    {{ mensajeError }}
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="config-tabs">
+    <nav class="config-tabs-nav">
+      <button
+        *ngFor="let tab of tabs"
+        class="config-tab"
+        [class.active]="activeTab === tab.id"
+        (click)="setActiveTab(tab.id)">
+        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+          <path [attr.d]="tab.icon"></path>
+        </svg>
+        {{ tab.label }}
+      </button>
+    </nav>
+  </div>
+
+  <!-- Tab Content -->
+  <div class="config-content">
+
+    <!-- Preferences Tab -->
+    <div *ngIf="activeTab === 'preferences'" class="config-tab-content">
+
+      <!-- Zona Horaria y Formato -->
+      <div class="config-section">
+        <div class="config-section-header">
+          <svg class="config-section-icon" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"></path>
+          </svg>
+          <h3>Configuración Regional</h3>
+        </div>
+        <p>Ajusta tu zona horaria y formatos de fecha preferidos</p>
+
+        <div class="config-form-row">
+          <div class="config-form-group">
+            <label for="timezone" class="config-label">Zona Horaria</label>
+            <select id="timezone" [(ngModel)]="config.timezone" (change)="checkChanges()" class="config-select">
+              <option value="America/Bogota">Bogotá (GMT-5)</option>
+              <option value="America/Mexico_City">Ciudad de México (GMT-6)</option>
+              <option value="America/New_York">Nueva York (GMT-5)</option>
+              <option value="Europe/Madrid">Madrid (GMT+1)</option>
+            </select>
+          </div>
+
+          <div class="config-form-group">
+            <label for="dateFormat" class="config-label">Formato de Fecha</label>
+            <select id="dateFormat" [(ngModel)]="config.dateFormat" (change)="checkChanges()" class="config-select">
+              <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+              <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+              <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+            </select>
+          </div>
+
+          <div class="config-form-group">
+            <label for="timeFormat" class="config-label">Formato de Hora</label>
+            <select id="timeFormat" [(ngModel)]="config.timeFormat" (change)="checkChanges()" class="config-select">
+              <option value="24h">24 horas</option>
+              <option value="12h">12 horas (AM/PM)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Vista Previa -->
+        <div class="config-preview">
+          <div class="config-preview-header">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
+              <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
+            </svg>
+            Vista previa:
+          </div>
+          <div class="config-preview-value">{{ getPreviewDate() }}</div>
+        </div>
+      </div>
+
+      <!-- Idioma y Tema -->
+      <div class="config-section">
+        <div class="config-section-header">
+          <svg class="config-section-icon" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M7 2a1 1 0 011 1v1h3a1 1 0 110 2H9.578a18.87 18.87 0 01-1.724 4.78c.29.354.596.696.914 1.026a1 1 0 11-1.44 1.389c-.188-.196-.373-.396-.554-.6a19.098 19.098 0 01-3.107 3.567 1 1 0 01-1.334-1.49 17.087 17.087 0 003.13-3.733 18.992 18.992 0 01-1.487-2.494 1 1 0 111.79-.89c.234.47.489.928.764 1.372.417-.934.752-1.913.997-2.927H3a1 1 0 110-2h3V3a1 1 0 011-1zm6 6a1 1 0 01.894.553l2.991 5.982a.869.869 0 01.02.037l.99 1.98a1 1 0 11-1.79.895L15.383 16h-4.764l-.724 1.447a1 1 0 11-1.788-.894l.99-1.98.019-.038 2.99-5.982A1 1 0 0113 8zm-1.382 6h2.764L13 11.236 11.618 14z" clip-rule="evenodd"></path>
+          </svg>
+          <h3>Idioma y Tema</h3>
+        </div>
+        <p>Personaliza el idioma y la apariencia</p>
+
+        <div class="config-form-row">
+          <div class="config-form-group">
+            <label for="language" class="config-label">Idioma</label>
+            <select id="language" [(ngModel)]="config.language" (change)="checkChanges()" class="config-select">
+              <option value="es">Español</option>
+              <option value="en">English</option>
+              <option value="pt">Português</option>
+            </select>
+          </div>
+
+          <div class="config-form-group">
+            <label for="theme" class="config-label">Tema</label>
+            <select id="theme" [(ngModel)]="config.theme" (change)="checkChanges()" class="config-select">
+              <option value="purple">Morado (Predeterminado)</option>
+              <option value="dark">Oscuro</option>
+              <option value="light">Claro</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Notifications Tab -->
+    <div *ngIf="activeTab === 'notifications'" class="config-tab-content">
+      <div class="config-section">
+        <div class="config-section-header">
+          <svg class="config-section-icon" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path>
+          </svg>
+          <h3>Preferencias de Notificaciones</h3>
+        </div>
+        <p>Controla cómo y cuándo recibes notificaciones</p>
+
+        <div class="config-toggle-list">
+          <div class="config-toggle-item">
+            <div class="config-toggle-info">
+              <h4>Notificaciones por Email</h4>
+              <p>Recibe alertas importantes por correo electrónico</p>
+            </div>
+            <label class="config-toggle">
+              <input type="checkbox" [(ngModel)]="config.emailNotifications" (change)="checkChanges()">
+              <span class="config-toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="config-toggle-item">
+            <div class="config-toggle-info">
+              <h4>Notificaciones de Escritorio</h4>
+              <p>Muestra notificaciones en tu navegador</p>
+            </div>
+            <label class="config-toggle">
+              <input type="checkbox" [(ngModel)]="config.desktopNotifications" (change)="checkChanges()">
+              <span class="config-toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="config-toggle-item">
+            <div class="config-toggle-info">
+              <h4>Sonidos</h4>
+              <p>Reproduce sonidos con las notificaciones</p>
+            </div>
+            <label class="config-toggle">
+              <input type="checkbox" [(ngModel)]="config.soundEnabled" (change)="checkChanges()">
+              <span class="config-toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Tab -->
+    <div *ngIf="activeTab === 'security'" class="config-tab-content">
+      <div class="config-section">
+        <div class="config-section-header">
+          <svg class="config-section-icon" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+          </svg>
+          <h3>Seguridad y Privacidad</h3>
+        </div>
+        <p>Gestiona la seguridad de tu cuenta</p>
+
+        <div class="config-form-group">
+          <label for="sessionTimeout" class="config-label">Tiempo de sesión (minutos)</label>
+          <select id="sessionTimeout" [(ngModel)]="config.sessionTimeout" (change)="checkChanges()" class="config-select">
+            <option value="15">15 minutos</option>
+            <option value="30">30 minutos</option>
+            <option value="60">1 hora</option>
+            <option value="120">2 horas</option>
+          </select>
+          <p class="config-help-text">La sesión se cerrará automáticamente después de este tiempo de inactividad</p>
+        </div>
+
+        <div class="config-toggle-item">
+          <div class="config-toggle-info">
+            <h4>Guardado Automático</h4>
+            <p>Guarda automáticamente los cambios sin confirmación</p>
+          </div>
+          <label class="config-toggle">
+            <input type="checkbox" [(ngModel)]="config.autoSave" (change)="checkChanges()">
+            <span class="config-toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- System Tab -->
+    <div *ngIf="activeTab === 'system'" class="config-tab-content">
+      <div class="config-section">
+        <div class="config-section-header">
+          <svg class="config-section-icon" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M3 12v3c0 1.657 3.134 3 7 3s7-1.343 7-3v-3c0 1.657-3.134 3-7 3s-7-1.343-7-3z"></path>
+            <path d="M3 7v3c0 1.657 3.134 3 7 3s7-1.343 7-3V7c0 1.657-3.134 3-7 3S3 8.657 3 7z"></path>
+            <path d="M17 5c0 1.657-3.134 3-7 3S3 6.657 3 5s3.134-3 7-3 7 1.343 7 3z"></path>
+          </svg>
+          <h3>Información del Sistema</h3>
+        </div>
+        <p>Detalles técnicos y gestión del sistema</p>
+
+        <div class="config-info-grid">
+          <div class="config-info-card">
+            <div class="config-info-label">Versión del Sistema</div>
+            <div class="config-info-value">1.0.0</div>
+          </div>
+
+          <div class="config-info-card">
+            <div class="config-info-label">Última Actualización</div>
+            <div class="config-info-value">9 Nov 2025</div>
+          </div>
+
+          <div class="config-info-card">
+            <div class="config-info-label">Estado del Sistema</div>
+            <div class="config-info-value text-green-600">
+              <span class="config-status-dot"></span>
+              Operativo
+            </div>
+          </div>
+
+          <div class="config-info-card">
+            <div class="config-info-label">Modo</div>
+            <div class="config-info-value">Producción</div>
+          </div>
+        </div>
+
+        <div class="config-action-buttons mt-6">
+          <button (click)="restaurarDefaults()" class="config-button secondary">
+            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"></path>
+            </svg>
+            Restaurar por Defecto
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="config-actions">
+    <button (click)="goBack()" class="config-button secondary">
+      Volver
+    </button>
+
+    <div class="config-actions-right">
+      <button *ngIf="hasChanges" (click)="cancelarCambios()" class="config-button secondary">
+        Cancelar
+      </button>
+
+      <button
+        (click)="guardarConfiguracion()"
+        [disabled]="!hasChanges || saving"
+        class="config-button primary">
+        <svg *ngIf="saving" class="animate-spin" width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M10 3a7 7 0 100 14 7 7 0 000-14zm0 2a5 5 0 110 10 5 5 0 010-10z"></path>
+        </svg>
+        <svg *ngIf="!saving" width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293zM9 4a1 1 0 012 0v2H9V4z"></path>
+        </svg>
+        {{ saving ? 'Guardando...' : 'Guardar Cambios' }}
+      </button>
+    </div>
+  </div>
+
+</div>
+

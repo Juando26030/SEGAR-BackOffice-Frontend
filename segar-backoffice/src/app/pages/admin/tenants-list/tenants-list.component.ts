@@ -1,63 +1,207 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+
+interface Tenant {
+  id?: number;
+  nombre: string;
+  nit: string;
+  email: string;
+  telefono: string;
+  plan: 'Starter' | 'Professional' | 'Enterprise';
+  estado: 'Activo' | 'Inactivo' | 'Prueba';
+  usuariosActivos: number;
+  fechaCreacion: string;
+}
 
 @Component({
   selector: 'app-tenants-list',
   standalone: true,
-  imports: [CommonModule, RouterModule],
-  template: `
-    <div class="p-6">
-      <h1 class="text-3xl font-bold text-gray-900 mb-6">Gestión de Tenants</h1>
-
-      <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
-        <div class="flex">
-          <div class="flex-shrink-0">
-            <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-            </svg>
-          </div>
-          <div class="ml-3">
-            <p class="text-sm text-yellow-800">
-              🚧 Esta sección está en desarrollo. Aquí podrás gestionar los clientes (tenants) del sistema.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-xl shadow p-6">
-        <div class="text-center py-12">
-          <div class="text-6xl mb-4">🏢</div>
-          <h2 class="text-2xl font-bold text-gray-900 mb-2">Gestión de Tenants</h2>
-          <p class="text-gray-600 mb-6">Próximamente: CRUD completo de clientes/tenants</p>
-
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto mt-8">
-            <div class="bg-purple-50 p-4 rounded-lg">
-              <div class="text-2xl mb-2">➕</div>
-              <p class="text-sm font-medium text-purple-900">Crear Tenants</p>
-            </div>
-            <div class="bg-blue-50 p-4 rounded-lg">
-              <div class="text-2xl mb-2">✏️</div>
-              <p class="text-sm font-medium text-blue-900">Editar Tenants</p>
-            </div>
-            <div class="bg-red-50 p-4 rounded-lg">
-              <div class="text-2xl mb-2">🗑️</div>
-              <p class="text-sm font-medium text-red-900">Eliminar Tenants</p>
-            </div>
-          </div>
-
-          <button
-            (click)="goBack()"
-            class="mt-8 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
-            Volver al Dashboard
-          </button>
-        </div>
-      </div>
-    </div>
-  `
+  imports: [CommonModule, FormsModule, RouterModule],
+  templateUrl: './tenants-list.component.html',
+  styleUrls: ['./tenants-list.component.css']
 })
-export class TenantsListComponent {
+export class TenantsListComponent implements OnInit {
+  tenants: Tenant[] = [];
+  tenantsFiltrados: Tenant[] = [];
+  mostrarFormulario = false;
+  editandoTenant = false;
+  cargando = false;
+  guardando = false;
+  mensajeExito = '';
+  mensajeError = '';
+  searchTerm = '';
+  filtroEstado = '';
+
+  tenantForm: Tenant = {
+    nombre: '',
+    nit: '',
+    email: '',
+    telefono: '',
+    plan: 'Professional',
+    estado: 'Prueba',
+    usuariosActivos: 0,
+    fechaCreacion: new Date().toISOString().split('T')[0]
+  };
+
   constructor(private router: Router) {}
+
+  ngOnInit() {
+    this.cargarTenants();
+  }
+
+  cargarTenants() {
+    this.cargando = true;
+
+    // Datos ficticios para demostración
+    setTimeout(() => {
+      this.tenants = [
+        {
+          id: 1,
+          nombre: 'AlimentosCol S.A.',
+          nit: '900123456-1',
+          email: 'contacto@alimentoscol.com',
+          telefono: '+57 300 1234567',
+          plan: 'Enterprise',
+          estado: 'Activo',
+          usuariosActivos: 45,
+          fechaCreacion: '2024-01-15'
+        },
+        {
+          id: 2,
+          nombre: 'FarmaLat Internacional',
+          nit: '900789012-2',
+          email: 'info@farmalat.com',
+          telefono: '+57 301 9876543',
+          plan: 'Professional',
+          estado: 'Activo',
+          usuariosActivos: 28,
+          fechaCreacion: '2024-02-20'
+        },
+        {
+          id: 3,
+          nombre: 'Cosmética Natural Ltda',
+          nit: '900345678-3',
+          email: 'ventas@cosmetica.com',
+          telefono: '+57 320 5551234',
+          plan: 'Professional',
+          estado: 'Activo',
+          usuariosActivos: 15,
+          fechaCreacion: '2024-03-10'
+        },
+        {
+          id: 4,
+          nombre: 'Dispositivos Médicos S.A.',
+          nit: '900456789-4',
+          email: 'contacto@dispositivosmed.com',
+          telefono: '+57 315 4567890',
+          plan: 'Starter',
+          estado: 'Prueba',
+          usuariosActivos: 8,
+          fechaCreacion: '2024-11-01'
+        }
+      ];
+
+      this.tenantsFiltrados = [...this.tenants];
+      this.cargando = false;
+    }, 800);
+  }
+
+  toggleFormulario() {
+    this.mostrarFormulario = !this.mostrarFormulario;
+    if (!this.mostrarFormulario) {
+      this.resetForm();
+    }
+  }
+
+  guardarTenant() {
+    this.guardando = true;
+
+    setTimeout(() => {
+      if (this.editandoTenant) {
+        const index = this.tenants.findIndex(t => t.id === this.tenantForm.id);
+        if (index !== -1) {
+          this.tenants[index] = { ...this.tenantForm };
+          this.mensajeExito = 'Tenant actualizado exitosamente';
+        }
+      } else {
+        const newTenant = {
+          ...this.tenantForm,
+          id: this.tenants.length + 1,
+          usuariosActivos: 0
+        };
+        this.tenants.push(newTenant);
+        this.mensajeExito = 'Tenant creado exitosamente';
+      }
+
+      this.filtrarTenants();
+      this.guardando = false;
+      this.mostrarFormulario = false;
+      this.resetForm();
+
+      setTimeout(() => {
+        this.mensajeExito = '';
+      }, 3000);
+    }, 1000);
+  }
+
+  editarTenant(tenant: Tenant) {
+    this.tenantForm = { ...tenant };
+    this.editandoTenant = true;
+    this.mostrarFormulario = true;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  eliminarTenant(tenant: Tenant) {
+    if (confirm(`¿Estás seguro de que deseas eliminar a ${tenant.nombre}?`)) {
+      this.tenants = this.tenants.filter(t => t.id !== tenant.id);
+      this.filtrarTenants();
+      this.mensajeExito = 'Tenant eliminado exitosamente';
+
+      setTimeout(() => {
+        this.mensajeExito = '';
+      }, 3000);
+    }
+  }
+
+  cancelarEdicion() {
+    this.mostrarFormulario = false;
+    this.resetForm();
+  }
+
+  resetForm() {
+    this.tenantForm = {
+      nombre: '',
+      nit: '',
+      email: '',
+      telefono: '',
+      plan: 'Professional',
+      estado: 'Prueba',
+      usuariosActivos: 0,
+      fechaCreacion: new Date().toISOString().split('T')[0]
+    };
+    this.editandoTenant = false;
+  }
+
+  filtrarTenants() {
+    let filtered = [...this.tenants];
+
+    if (this.searchTerm) {
+      const term = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(t =>
+        t.nombre.toLowerCase().includes(term) ||
+        t.nit.toLowerCase().includes(term) ||
+        t.email.toLowerCase().includes(term)
+      );
+    }
+
+    if (this.filtroEstado) {
+      filtered = filtered.filter(t => t.estado === this.filtroEstado);
+    }
+
+    this.tenantsFiltrados = filtered;
+  }
 
   goBack() {
     this.router.navigate(['/admin/dashboard']);
